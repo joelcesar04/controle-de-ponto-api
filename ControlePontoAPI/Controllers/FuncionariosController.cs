@@ -29,7 +29,7 @@ namespace ControlePontoAPI.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace ControlePontoAPI.Controllers
             {
                 var resultado = await _service.AddAsync(funcionario);
 
-                return CreatedAtAction(nameof(GetById), new { id = resultado.Id }, resultado);
+                return CreatedAtAction(nameof(Get), new { id = resultado.Id }, resultado);
             }
             catch (Exception ex)
             {

@@ -24,10 +24,20 @@ public class RegistroPontoRepository : IRegistroPontoRepository
         return await _context.RegistrosPonto.FirstOrDefaultAsync(r => r.Id == id);
     }
 
-    public async Task AddAsync(RegistroPonto registroPonto)
+    public async Task<RegistroPonto?> GetLastRegistroPonto(int funcionarioId)
+    {
+        return await _context.RegistrosPonto
+                        .Where(r => r.FuncionarioId == funcionarioId)
+                        .OrderByDescending(r => r.DataHora)
+                        .FirstOrDefaultAsync();
+    }
+
+    public async Task<RegistroPonto> AddAsync(RegistroPonto registroPonto)
     {
         await _context.RegistrosPonto.AddAsync(registroPonto);
         await _context.SaveChangesAsync();
+
+        return registroPonto;
     }
 
     public async Task<RegistroPonto> UpdateAsync(RegistroPonto registroPonto)
