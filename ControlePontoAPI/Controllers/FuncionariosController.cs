@@ -1,4 +1,6 @@
-﻿using ControlePontoAPI.Models;
+﻿using ControlePontoAPI.DTOs.Funcionario;
+using ControlePontoAPI.Mappers;
+using ControlePontoAPI.Models;
 using ControlePontoAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +22,7 @@ namespace ControlePontoAPI.Controllers
             try
             {
                 var funcionarios = await _service.GetAllAsync();
-                return Ok(funcionarios);
+                return Ok(funcionarios.Select(f => f.ToFuncionarioDto()));
             }
             catch (Exception ex)
             {
@@ -38,7 +40,7 @@ namespace ControlePontoAPI.Controllers
                 if (funcionario == null)
                     return NotFound("Funcionário não encontrado.");
 
-                return Ok(funcionario);
+                return Ok(funcionario.ToFuncionarioDto());
             }
             catch (Exception ex)
             {
@@ -47,13 +49,15 @@ namespace ControlePontoAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Funcionario funcionario)
+        public async Task<IActionResult> Create(FuncionarioCreateDTO funcionarioDto)
         {
             try
             {
+                var funcionario = funcionarioDto.ToFuncionario();
+
                 var resultado = await _service.AddAsync(funcionario);
 
-                return CreatedAtAction(nameof(Get), new { id = resultado.Id }, resultado);
+                return CreatedAtAction(nameof(Get), new { id = resultado.Id }, resultado.ToFuncionarioDto());
             }
             catch (Exception ex)
             {
@@ -62,16 +66,18 @@ namespace ControlePontoAPI.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, Funcionario funcionario)
+        public async Task<IActionResult> Update(int id, FuncionarioUpdateDTO funcionarioDto)
         {
             try
             {
+                var funcionario = funcionarioDto.ToFuncionario(id);
+
                 var resultado = await _service.UpdateAsync(id, funcionario);
 
                 if (resultado == null)
                     return NotFound("Funcionário não encontrado.");
 
-                return Ok(resultado);
+                return Ok(resultado.ToFuncionarioDto());
 
             }
             catch (Exception ex)

@@ -1,4 +1,6 @@
-﻿using ControlePontoAPI.Models;
+﻿using ControlePontoAPI.DTOs.RegistroPonto;
+using ControlePontoAPI.Mappers;
+using ControlePontoAPI.Models;
 using ControlePontoAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +26,7 @@ public class RegistrosPontoController : ControllerBase
         {
             var registros = await _service.GetAllAsync();
 
-            return Ok(registros);
+            return Ok(registros.Select(r => r.ToRegistroPontoDto()));
         }
         catch (Exception ex)
         {
@@ -42,7 +44,7 @@ public class RegistrosPontoController : ControllerBase
             if (registro == null)
                 return NotFound("Registro não encontrado.");
 
-            return Ok(registro);
+            return Ok(registro.ToRegistroPontoDto());
         }
         catch (Exception ex)
         {
@@ -51,10 +53,12 @@ public class RegistrosPontoController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(RegistroPonto registroPonto)
+    public async Task<IActionResult> Create(RegistroPontoCreateDto registroPontoDto)
     {
         try
         {
+            var registroPonto = registroPontoDto.ToRegistroPonto();
+
             var funcionario = await _funcionarioService.GetByIdAsync(registroPonto.FuncionarioId);
 
             if (funcionario == null)
@@ -62,7 +66,7 @@ public class RegistrosPontoController : ControllerBase
 
             var resultado = await _service.AddAsync(registroPonto);
 
-            return CreatedAtAction(nameof(Get), new { id = registroPonto.Id }, resultado);
+            return CreatedAtAction(nameof(Get), new { id = registroPonto.Id }, resultado.ToRegistroPontoDto());
         }
         catch (Exception ex)
         {
@@ -71,16 +75,18 @@ public class RegistrosPontoController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody]RegistroPonto registroPonto)
+    public async Task<IActionResult> Update(int id, [FromBody]RegistroPontoUpdateDTO registroPontoDto)
     {
         try
         {
+            var registroPonto = registroPontoDto.ToRegistroPonto(id);
+
             var resultado = await _service.UpdateAsync(id, registroPonto);
 
             if (resultado == null)
                 return NotFound("Registro não encontrado.");
 
-            return Ok(resultado);
+            return Ok(resultado.ToRegistroPontoDto());
         }
         catch(Exception ex)
         {

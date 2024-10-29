@@ -33,6 +33,7 @@ public class FuncionarioService : IFuncionarioService
         if (funcionario.DataAdmissao == default)
             funcionario.DataAdmissao = DateTime.Now;
 
+        funcionario.Ativo = true;
         await _repository.AddAsync(funcionario);
 
         return funcionario;
@@ -46,7 +47,6 @@ public class FuncionarioService : IFuncionarioService
             return null;
 
         existsFuncionario.Nome = funcionario.Nome;
-        existsFuncionario.Email = funcionario.Email;
         existsFuncionario.Cargo = funcionario.Cargo;
         existsFuncionario.Ativo = funcionario.Ativo;
 
