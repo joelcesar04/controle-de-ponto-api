@@ -13,9 +13,14 @@ public class FuncionarioRepository : IFuncionarioRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Funcionario>> GetAllAsync()
+    public IQueryable<Funcionario> GetAll()
     {
-        return await _context.Funcionarios.AsNoTracking().ToListAsync();
+        return _context.Funcionarios.AsNoTracking().AsQueryable();
+    }
+
+    public async Task<IEnumerable<Funcionario>> GetAllAsync(IQueryable<Funcionario> query)
+    {
+        return await query.ToListAsync();
     }
 
     public async Task<Funcionario?> GetByIdAsync(int id)

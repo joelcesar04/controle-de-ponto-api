@@ -4,7 +4,8 @@ namespace ControlePontoAPI.Repositories.Interfaces;
 
 public interface IFuncionarioRepository
 {
-    Task<IEnumerable<Funcionario>> GetAllAsync();
+    IQueryable<Funcionario> GetAll();
+    Task<IEnumerable<Funcionario>> GetAllAsync(IQueryable<Funcionario> query);
     Task<Funcionario?> GetByIdAsync(int id);
     Task AddAsync(Funcionario funcionario);
     Task<Funcionario> UpdateAsync(Funcionario funcionario);

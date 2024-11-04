@@ -1,4 +1,5 @@
 ﻿using ControlePontoAPI.Models;
+using ControlePontoAPI.Queries;
 using ControlePontoAPI.Repositories.Interfaces;
 using ControlePontoAPI.Services.Interfaces;
 
@@ -13,9 +14,39 @@ public class FuncionarioService : IFuncionarioService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<Funcionario>> GetAllAsync()
+    public async Task<IEnumerable<Funcionario>> GetAllAsync(FuncionarioQueryParams funcionarioQueryParams)
     {
-        return await _repository.GetAllAsync();
+        var query = _repository.GetAll();
+
+        if (!string.IsNullOrEmpty(funcionarioQueryParams.Nome))
+            query = query.Where(q => q.Nome.Contains(funcionarioQueryParams.Nome));
+
+        if (!string.IsNullOrEmpty(funcionarioQueryParams.Cargo))
+            query = query.Where(q => q.Cargo.Contains(funcionarioQueryParams.Cargo));
+
+        switch (funcionarioQueryParams.Ativo)
+        {
+            case true:
+                query = query.Where(q => q.Ativo);
+                break;
+            case false:
+                query = query.Where(q => !q.Ativo);
+                break;
+            default:
+                break;
+        }
+
+        if (funcionarioQueryParams.PageNumber < 1) funcionarioQueryParams.PageNumber = 1;
+        if (funcionarioQueryParams.PageSize < 1) funcionarioQueryParams.PageSize = 10;
+
+        var filters = query
+            .OrderBy(q => q.Nome)
+            .Skip((funcionarioQueryParams.PageNumber - 1) * funcionarioQueryParams.PageSize)
+            .Take(funcionarioQueryParams.PageSize);
+
+        var registros = await _repository.GetAllAsync(filters);
+
+        return registros;
     }
 
     public async Task<Funcionario?> GetByIdAsync(int id)

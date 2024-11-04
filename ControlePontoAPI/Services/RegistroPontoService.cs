@@ -1,5 +1,6 @@
 ﻿using ControlePontoAPI.Enums;
 using ControlePontoAPI.Models;
+using ControlePontoAPI.Queries;
 using ControlePontoAPI.Repositories.Interfaces;
 using ControlePontoAPI.Services.Interfaces;
 
@@ -17,9 +18,30 @@ namespace ControlePontoAPI.Services
             _repositoryFuncionario = repositoryFuncionario;
         }
 
-        public async Task<IEnumerable<RegistroPonto>> GetAllAsync()
+        public async Task<IEnumerable<RegistroPonto>> GetAllAsync(RegistroPontoQueryParams registroPontoQueryParams)
         {
-            return await _repository.GetAllAsync();
+            var query = _repository.GetAll();
+
+            if (registroPontoQueryParams.FuncionarioId.HasValue)
+                query = query.Where(r => r.FuncionarioId == registroPontoQueryParams.FuncionarioId);
+
+            if (registroPontoQueryParams.Tipo.HasValue)
+                query = query.Where(r => r.Tipo == registroPontoQueryParams.Tipo.Value);
+
+            if (registroPontoQueryParams.DataInicial.HasValue)
+                query = query.Where(r => r.DataHora >= registroPontoQueryParams.DataInicial.Value);
+
+            if (registroPontoQueryParams.DataFinal.HasValue)
+                query = query.Where(r => r.DataHora <= registroPontoQueryParams.DataFinal.Value);
+
+            query = query
+                .OrderBy(r => r.FuncionarioId)
+                .Skip((registroPontoQueryParams.PageNumber - 1) * registroPontoQueryParams.PageSize)
+                .Take(registroPontoQueryParams.PageSize);
+
+            var registros = await _repository.GetAllAsync(query);
+
+            return registros;
         }
 
         public async Task<RegistroPonto?> GetByIdAsync(int id)

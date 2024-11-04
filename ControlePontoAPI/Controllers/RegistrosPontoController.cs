@@ -1,6 +1,7 @@
 ﻿using ControlePontoAPI.DTOs.RegistroPonto;
 using ControlePontoAPI.Mappers;
 using ControlePontoAPI.Models;
+using ControlePontoAPI.Queries;
 using ControlePontoAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,11 +21,14 @@ public class RegistrosPontoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get([FromQuery] RegistroPontoQueryParams registroPontoQueryParams)
     {
         try
         {
-            var registros = await _service.GetAllAsync();
+            var registros = await _service.GetAllAsync(registroPontoQueryParams);
+
+            if (registros == null || !registros.Any())
+                return NotFound("Nenhum registro encontrado.");
 
             return Ok(registros.Select(r => r.ToRegistroPontoDto()));
         }

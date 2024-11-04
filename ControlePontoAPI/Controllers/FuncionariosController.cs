@@ -1,6 +1,6 @@
 ﻿using ControlePontoAPI.DTOs.Funcionario;
 using ControlePontoAPI.Mappers;
-using ControlePontoAPI.Models;
+using ControlePontoAPI.Queries;
 using ControlePontoAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +17,15 @@ namespace ControlePontoAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] FuncionarioQueryParams funcionarioQueryParams)
         {
             try
             {
-                var funcionarios = await _service.GetAllAsync();
+                var funcionarios = await _service.GetAllAsync(funcionarioQueryParams);
+                
+                if (funcionarios == null || !funcionarios.Any())
+                    return NotFound("Nenhum funcionário encontrado.");
+
                 return Ok(funcionarios.Select(f => f.ToFuncionarioDto()));
             }
             catch (Exception ex)

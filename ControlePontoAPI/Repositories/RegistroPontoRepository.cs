@@ -14,9 +14,14 @@ public class RegistroPontoRepository : IRegistroPontoRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<RegistroPonto>> GetAllAsync()
+    public IQueryable<RegistroPonto> GetAll()
     {
-        return await _context.RegistrosPonto.AsNoTracking().ToListAsync();
+        return _context.RegistrosPonto.AsNoTracking().AsQueryable();
+    }
+    
+    public async Task<IEnumerable<RegistroPonto>> GetAllAsync(IQueryable<RegistroPonto> query)
+    {
+        return await query.ToListAsync();
     }
 
     public async Task<RegistroPonto?> GetByIdAsync(int id)

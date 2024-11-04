@@ -4,7 +4,8 @@ namespace ControlePontoAPI.Repositories.Interfaces;
 
 public interface IRegistroPontoRepository
 {
-    Task<IEnumerable<RegistroPonto>> GetAllAsync();
+    IQueryable<RegistroPonto> GetAll();
+    Task<IEnumerable<RegistroPonto>> GetAllAsync(IQueryable<RegistroPonto> query);
     Task<RegistroPonto?> GetByIdAsync(int id);
     Task<IEnumerable<RegistroPonto>> GetByFuncionarioAsync(int idFuncionario);
     Task<RegistroPonto?> GetLastRegistroPontoAsync(int funcionarioId);
