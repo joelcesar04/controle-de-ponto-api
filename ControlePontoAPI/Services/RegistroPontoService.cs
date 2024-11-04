@@ -8,10 +8,13 @@ namespace ControlePontoAPI.Services
     public class RegistroPontoService : IRegistroPontoService
     {
         private readonly IRegistroPontoRepository _repository;
+        private readonly IFuncionarioRepository _repositoryFuncionario;
 
-        public RegistroPontoService(IRegistroPontoRepository repository)
+        public RegistroPontoService(IRegistroPontoRepository repository,
+            IFuncionarioRepository repositoryFuncionario)
         {
             _repository = repository;
+            _repositoryFuncionario = repositoryFuncionario;
         }
 
         public async Task<IEnumerable<RegistroPonto>> GetAllAsync()
@@ -23,15 +26,22 @@ namespace ControlePontoAPI.Services
         {
             var registroPonto = await _repository.GetByIdAsync(id);
 
-            if (registroPonto == null) 
+            if (registroPonto == null)
                 return null;
 
             return registroPonto;
         }
 
+        public async Task<IEnumerable<RegistroPonto>> GetByFuncionarioAsync(int idFuncionario)
+        {
+            var registrosPonto = await _repository.GetByFuncionarioAsync(idFuncionario);
+
+            return registrosPonto;
+        }
+
         public async Task<RegistroPonto> AddAsync(RegistroPonto registroPonto)
         {
-            var ultimoRegistro = await _repository.GetLastRegistroPonto(registroPonto.FuncionarioId);
+            var ultimoRegistro = await _repository.GetLastRegistroPontoAsync(registroPonto.FuncionarioId);
 
             if (ultimoRegistro != null && ultimoRegistro.Tipo == TipoRegistro.Entrada)
             {
@@ -65,7 +75,7 @@ namespace ControlePontoAPI.Services
         {
             var registro = await _repository.GetByIdAsync(id);
 
-            if (registro == null) 
+            if (registro == null)
                 return null;
 
             await _repository.DeleteAsync(registro);

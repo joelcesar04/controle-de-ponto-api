@@ -52,6 +52,29 @@ public class RegistrosPontoController : ControllerBase
         }
     }
 
+    [HttpGet("funcionario/{id:int}")]
+    public async Task<IActionResult> GetRegistroByFuncionario(int id)
+    {
+        try
+        {
+            var funcionario = await _funcionarioService.GetByIdAsync(id);
+
+            if (funcionario == null)
+                return NotFound("Funcionário não encontrado.");
+
+            var registros = await _service.GetByFuncionarioAsync(id);
+
+            if (!registros.Any())
+                return NotFound("Sem registros para esse funcionário");
+
+            return Ok(registros.Select(r => r.ToRegistroPontoDto()));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
+        }
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(RegistroPontoCreateDto registroPontoDto)
     {

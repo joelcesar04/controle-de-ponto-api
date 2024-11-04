@@ -24,7 +24,15 @@ public class RegistroPontoRepository : IRegistroPontoRepository
         return await _context.RegistrosPonto.FirstOrDefaultAsync(r => r.Id == id);
     }
 
-    public async Task<RegistroPonto?> GetLastRegistroPonto(int funcionarioId)
+    public async Task<IEnumerable<RegistroPonto>> GetByFuncionarioAsync(int idFuncionario)
+    {
+        return await _context.RegistrosPonto
+                        .Where(r => r.FuncionarioId == idFuncionario)
+                        .OrderBy(r => r.DataHora)
+                        .ToListAsync();
+    }
+
+    public async Task<RegistroPonto?> GetLastRegistroPontoAsync(int funcionarioId)
     {
         return await _context.RegistrosPonto
                         .Where(r => r.FuncionarioId == funcionarioId)
