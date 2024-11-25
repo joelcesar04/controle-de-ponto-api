@@ -1,14 +1,16 @@
 ﻿using ControlePontoAPI.DTOs.RegistroPonto;
 using ControlePontoAPI.Mappers;
-using ControlePontoAPI.Models;
 using ControlePontoAPI.Queries;
 using ControlePontoAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ControlePontoAPI.Controllers;
 
 [Route("api/registrosponto")]
 [ApiController]
+[Authorize(Roles = "Admin, Employee")]
 public class RegistrosPontoController : ControllerBase
 {
     private readonly IRegistroPontoService _service;
@@ -21,10 +23,11 @@ public class RegistrosPontoController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize("Admin")]
     public async Task<IActionResult> Get([FromQuery] RegistroPontoQueryParams registroPontoQueryParams)
     {
         try
-        {
+        {         
             var registros = await _service.GetAllAsync(registroPontoQueryParams);
 
             if (registros == null || !registros.Any())
@@ -38,29 +41,36 @@ public class RegistrosPontoController : ControllerBase
         }
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get(int id)
+    //[HttpGet("{id:int}")]
+    //public async Task<IActionResult> Get(int id)
+    //{
+    //    try
+    //    {
+    //        var registro = await _service.GetByIdAsync(id);
+
+    //        if (registro == null)
+    //            return NotFound("Registro não encontrado.");
+
+    //        return Ok(registro.ToRegistroPontoDto());
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
+    //    }
+    //}
+
+    [HttpGet("funcionario")]
+    public async Task<IActionResult> GetRegistroByFuncionario()
     {
         try
         {
-            var registro = await _service.GetByIdAsync(id);
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
-            if (registro == null)
-                return NotFound("Registro não encontrado.");
+            if (userIdClaim == null)
+                return Unauthorized("Usuário não autenticado ou ID não disponível no token.");
 
-            return Ok(registro.ToRegistroPontoDto());
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
-        }
-    }
+            var id = int.Parse(userIdClaim.Value);
 
-    [HttpGet("funcionario/{id:int}")]
-    public async Task<IActionResult> GetRegistroByFuncionario(int id)
-    {
-        try
-        {
             var funcionario = await _funcionarioService.GetByIdAsync(id);
 
             if (funcionario == null)
@@ -84,9 +94,16 @@ public class RegistrosPontoController : ControllerBase
     {
         try
         {
-            var registroPonto = registroPontoDto.ToRegistroPonto();
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
-            var funcionario = await _funcionarioService.GetByIdAsync(registroPonto.FuncionarioId);
+            if (userIdClaim == null)
+                return Unauthorized("Usuário não autenticado ou ID não disponível no token.");
+
+            var id = int.Parse(userIdClaim.Value);
+
+            var registroPonto = registroPontoDto.ToRegistroPonto(id);
+
+            var funcionario = await _funcionarioService.GetByIdAsync(id);
 
             if (funcionario == null)
                 return NotFound("Funcionário não encontrado.");
@@ -106,9 +123,31 @@ public class RegistrosPontoController : ControllerBase
     {
         try
         {
-            var registroPonto = registroPontoDto.ToRegistroPonto(id);
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
-            var resultado = await _service.UpdateAsync(id, registroPonto);
+            if (userIdClaim == null)
+                return Unauthorized("Usuário não autenticado ou ID não disponível no token.");
+
+            var idfuncionarioAutenticado = int.Parse(userIdClaim.Value);
+
+            var funcionarioAutenticado = await _funcionarioService.GetByIdAsync(idfuncionarioAutenticado);
+
+            if (funcionarioAutenticado == null)
+                return NotFound("Funcionário não encontrado.");
+
+            var registrosDoFuncionario = await _service.GetByFuncionarioAsync(idfuncionarioAutenticado);
+
+            if (registrosDoFuncionario == null || !registrosDoFuncionario.Any())
+                return NotFound("Nenhum registro de ponto encontrado para este funcionário.");
+
+            var registroExistente = registrosDoFuncionario.FirstOrDefault(r => r.Id == id);
+
+            if (registroExistente == null)
+                return StatusCode(403, "Você não tem permissão para alterar este registro.");
+
+            var registroAtualizado = registroPontoDto.ToRegistroPonto(id);
+
+            var resultado = await _service.UpdateAsync(id, registroAtualizado);
 
             if (resultado == null)
                 return NotFound("Registro não encontrado.");
@@ -122,6 +161,7 @@ public class RegistrosPontoController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         try

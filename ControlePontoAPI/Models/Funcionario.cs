@@ -29,6 +29,14 @@ public class Funcionario
     [FutureDateValidation(ErrorMessage = "A data de admissão não pode ser no futuro.")]
     public DateTime DataAdmissao { get; set; }
 
+    [Required(ErrorMessage = "O campo Senha é obrigatório.")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter pelo menos 6 caracteres.")]
+    public string Senha { get; set; }
+
+    [Required(ErrorMessage = "O campo Role é obrigatório.")]
+    [RegularExpression("^(Admin|Employee)$", ErrorMessage = "A Role deve ser 'Admin' ou 'Employee'.")]
+    public string Role { get; set; }
+
     [JsonIgnore]
     public ICollection<RegistroPonto>? RegistrosPonto { get; set; } = new List<RegistroPonto>();
 }

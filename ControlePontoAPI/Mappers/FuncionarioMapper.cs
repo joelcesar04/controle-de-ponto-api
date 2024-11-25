@@ -27,6 +27,8 @@ public static class FuncionarioMapper
             Cargo = funcionarioDTO.Cargo,
             Ativo = true,
             DataAdmissao = DateTime.Now,
+            Role = funcionarioDTO.Role,
+            Senha = funcionarioDTO.Senha,
         };
     }
 

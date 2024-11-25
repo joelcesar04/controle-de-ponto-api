@@ -59,12 +59,24 @@ public class FuncionarioService : IFuncionarioService
         return funcionario;
     }
 
+    public async Task<Funcionario?> GetByEmailAsync(string email)
+    {
+        var funcionario = await _repository.GetByEmailAsync(email);
+
+        if (funcionario == null)
+            return null;
+
+        return funcionario;
+    }
+
     public async Task<Funcionario> AddAsync(Funcionario funcionario)
     {
         if (funcionario.DataAdmissao == default)
             funcionario.DataAdmissao = DateTime.Now;
 
         funcionario.Ativo = true;
+        funcionario.Senha = BCrypt.Net.BCrypt.HashPassword(funcionario.Senha);
+
         await _repository.AddAsync(funcionario);
 
         return funcionario;
@@ -95,5 +107,20 @@ public class FuncionarioService : IFuncionarioService
 
         await _repository.DeleteAsync(funcionario);
         return funcionario;
+    }
+
+    public async Task<Funcionario?> ValidateCredentialsAsync(string email, string senha)
+    {
+        var funcionario = await _repository.GetByEmailAsync(email);
+        
+        if (funcionario == null || !VerifyPasswordHash(senha, funcionario.Senha))
+            return null;
+
+        return funcionario;
+    }
+
+    private bool VerifyPasswordHash(string senha, string senhaHash)
+    {
+        return BCrypt.Net.BCrypt.Verify(senha, senhaHash);
     }
 }

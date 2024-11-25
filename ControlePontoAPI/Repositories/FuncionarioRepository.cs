@@ -28,6 +28,11 @@ public class FuncionarioRepository : IFuncionarioRepository
         return await _context.Funcionarios.FirstOrDefaultAsync(f => f.Id == id);
     }
 
+    public async Task<Funcionario?> GetByEmailAsync(string email)
+    {
+        return await _context.Funcionarios.AsNoTracking().FirstOrDefaultAsync(f => f.Email == email);
+    }
+
     public async Task AddAsync(Funcionario funcionario)
     {
         await _context.Funcionarios.AddAsync(funcionario);

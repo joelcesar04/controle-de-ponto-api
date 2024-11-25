@@ -17,11 +17,11 @@ public static class RegistroPontoMapper
         };
     }
 
-    public static RegistroPonto ToRegistroPonto(this RegistroPontoCreateDto registroPontoDto)
+    public static RegistroPonto ToRegistroPonto(this RegistroPontoCreateDto registroPontoDto, int id)
     {
         return new RegistroPonto
         {
-            FuncionarioId = registroPontoDto.FuncionarioId,
+            FuncionarioId = id,
             DataHora = DateTime.Now,
             Observacao = registroPontoDto.Observacao,
         };
