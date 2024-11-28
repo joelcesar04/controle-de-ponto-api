@@ -24,20 +24,14 @@ public class FuncionarioService : IFuncionarioService
         if (!string.IsNullOrEmpty(funcionarioQueryParams.Cargo))
             query = query.Where(q => q.Cargo.Contains(funcionarioQueryParams.Cargo));
 
-        switch (funcionarioQueryParams.Ativo)
+        // Essa abordagem tem o mesmo efeito e é mais concisa. 
+        if (funcionarioQueryParams.Ativo.HasValue)
         {
-            case true:
-                query = query.Where(q => q.Ativo);
-                break;
-            case false:
-                query = query.Where(q => !q.Ativo);
-                break;
-            default:
-                break;
+            query = query.Where(q => q.Ativo == funcionarioQueryParams.Ativo.Value);
         }
 
-        if (funcionarioQueryParams.PageNumber < 1) funcionarioQueryParams.PageNumber = 1;
-        if (funcionarioQueryParams.PageSize < 1) funcionarioQueryParams.PageSize = 10;
+        // Movida logica para classe
+        funcionarioQueryParams.ApplyDefaults();
 
         var filters = query
             .OrderBy(q => q.Nome)
@@ -49,25 +43,12 @@ public class FuncionarioService : IFuncionarioService
         return registros;
     }
 
-    public async Task<Funcionario?> GetByIdAsync(int id)
-    {
-        var funcionario = await _repository.GetByIdAsync(id);
+    // Se voce faz uma comparação se é nulo e devolve nulo pode devolver diretamente.
+    public async Task<Funcionario?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
 
-        if (funcionario == null)
-            return null;
-
-        return funcionario;
-    }
-
-    public async Task<Funcionario?> GetByEmailAsync(string email)
-    {
-        var funcionario = await _repository.GetByEmailAsync(email);
-
-        if (funcionario == null)
-            return null;
-
-        return funcionario;
-    }
+    // Se voce faz uma comparação se é nulo e devolve nulo pode devolver diretamente.
+    public async Task<Funcionario?> GetByEmailAsync(string email) => await _repository.GetByEmailAsync(email);
+    
 
     public async Task<Funcionario> AddAsync(Funcionario funcionario)
     {
@@ -123,4 +104,5 @@ public class FuncionarioService : IFuncionarioService
     {
         return BCrypt.Net.BCrypt.Verify(senha, senhaHash);
     }
+
 }
