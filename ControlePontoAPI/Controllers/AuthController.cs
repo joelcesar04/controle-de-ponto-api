@@ -48,7 +48,7 @@ public class AuthController : ControllerBase
             return CreatedAtAction("GetById", "Funcionarios", new { id = resultado.Id }, resultado.ToFuncionarioDto());
 
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }

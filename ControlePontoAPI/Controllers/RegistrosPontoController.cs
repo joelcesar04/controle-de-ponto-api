@@ -35,7 +35,7 @@ public class RegistrosPontoController : ControllerBase
 
             return Ok(registros.Select(r => r.ToRegistroPontoDto()));
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }
@@ -83,7 +83,7 @@ public class RegistrosPontoController : ControllerBase
 
             return Ok(registros.Select(r => r.ToRegistroPontoDto()));
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }
@@ -112,7 +112,7 @@ public class RegistrosPontoController : ControllerBase
 
             return CreatedAtAction(nameof(Get), new { id = registroPonto.Id }, resultado.ToRegistroPontoDto());
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }
@@ -154,7 +154,7 @@ public class RegistrosPontoController : ControllerBase
 
             return Ok(resultado.ToRegistroPontoDto());
         }
-        catch(Exception ex)
+        catch(Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }
@@ -173,7 +173,7 @@ public class RegistrosPontoController : ControllerBase
 
             return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }

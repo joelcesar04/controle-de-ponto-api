@@ -34,6 +34,8 @@ namespace ControlePontoAPI.Services
             if (registroPontoQueryParams.DataFinal.HasValue)
                 query = query.Where(r => r.DataHora <= registroPontoQueryParams.DataFinal.Value);
 
+            registroPontoQueryParams.ApplyDefaults();
+
             query = query
                 .OrderBy(r => r.FuncionarioId)
                 .Skip((registroPontoQueryParams.PageNumber - 1) * registroPontoQueryParams.PageSize)
@@ -44,35 +46,24 @@ namespace ControlePontoAPI.Services
             return registros;
         }
 
-        public async Task<RegistroPonto?> GetByIdAsync(int id)
-        {
-            var registroPonto = await _repository.GetByIdAsync(id);
+        // Se voce faz uma comparação se é nulo e devolve nulo pode devolver diretamente.
+        public async Task<RegistroPonto?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
+       
 
-            if (registroPonto == null)
-                return null;
+        // Reduzida logica.
+        public async Task<IEnumerable<RegistroPonto>> GetByFuncionarioAsync(int idFuncionario) 
+            => await _repository.GetByFuncionarioAsync(idFuncionario);
 
-            return registroPonto;
-        }
 
-        public async Task<IEnumerable<RegistroPonto>> GetByFuncionarioAsync(int idFuncionario)
-        {
-            var registrosPonto = await _repository.GetByFuncionarioAsync(idFuncionario);
-
-            return registrosPonto;
-        }
-
+        
         public async Task<RegistroPonto> AddAsync(RegistroPonto registroPonto)
         {
             var ultimoRegistro = await _repository.GetLastRegistroPontoAsync(registroPonto.FuncionarioId);
 
-            if (ultimoRegistro != null && ultimoRegistro.Tipo == TipoRegistro.Entrada)
-            {
-                registroPonto.Tipo = TipoRegistro.Saida;
-            }
-            else
-            {
-                registroPonto.Tipo = TipoRegistro.Entrada;
-            }
+            // Esse é o código mais enxuto e mantém a mesma funcionalidade
+            registroPonto.Tipo = (ultimoRegistro?.Tipo == TipoRegistro.Entrada)
+                ? TipoRegistro.Saida
+                : TipoRegistro.Entrada;
 
             registroPonto.DataHora = DateTime.Now;
             await _repository.AddAsync(registroPonto);

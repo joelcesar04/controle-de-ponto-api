@@ -30,7 +30,7 @@ public class FuncionariosController : ControllerBase
 
             return Ok(funcionarios.Select(f => f.ToFuncionarioDto()));
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }
@@ -48,7 +48,7 @@ public class FuncionariosController : ControllerBase
 
             return Ok(funcionario.ToFuncionarioDto());
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }
@@ -86,7 +86,7 @@ public class FuncionariosController : ControllerBase
             return Ok(resultado.ToFuncionarioDto());
 
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }
@@ -104,7 +104,7 @@ public class FuncionariosController : ControllerBase
 
             return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception) // não estava usando a variavel pra nada
         {
             return StatusCode(500, "Ocorreu um erro ao processar a solicitação.");
         }
